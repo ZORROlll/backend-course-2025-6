@@ -115,6 +115,24 @@ app.put('/inventory/:id', (req, res) => {
   res.json({ message: 'Інформацію про річ оновлено' });
 });
 
+// GET /inventory/:id/photo - повертає фото
+app.get('/inventory/:id/photo', (req, res) => {
+  const itemId = parseInt(req.params.id, 10);
+  const item = inventory.find(i => i.id === itemId);
+
+  if (!item || !item.photo_filename) {
+    return res.status(404).json({ error: 'Фото не знайдено' });
+  }
+
+  const photoPath = path.join(cachePath, item.photo_filename);
+  if (!fs.existsSync(photoPath)) {
+    return res.status(404).json({ error: 'Файл фото не знайдено' });
+  }
+
+  res.setHeader('Content-Type', 'image/jpeg');
+  res.sendFile(photoPath);
+});
+
 // Створюємо HTTP сервер з допомогою модуля http
 const server = http.createServer(app);
 

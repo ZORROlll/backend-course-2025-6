@@ -93,6 +93,28 @@ app.get('/inventory/:id', (req, res) => {
   });
 });
 
+// PUT /inventory/:id - оновлення назви/опису
+app.put('/inventory/:id', (req, res) => {
+  const itemId = parseInt(req.params.id, 10);
+  const item = inventory.find(i => i.id === itemId);
+
+  if (!item) {
+    return res.status(404).json({ error: 'Річ не знайдена' });
+  }
+
+  const { inventory_name, description } = req.body;
+
+  if (inventory_name !== undefined) {
+    item.inventory_name = inventory_name;
+  }
+
+  if (description !== undefined) {
+    item.description = description;
+  }
+
+  res.json({ message: 'Інформацію про річ оновлено' });
+});
+
 // Створюємо HTTP сервер з допомогою модуля http
 const server = http.createServer(app);
 

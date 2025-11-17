@@ -46,6 +46,11 @@ app.get('/RegisterForm.html', (req, res) => {
   res.sendFile(path.join(__dirname, 'RegisterForm.html'));
 });
 
+// HTML-форма пошуку
+app.get('/SearchForm.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'SearchForm.html'));
+});
+
 // POST /register - реєстрація нового пристрою
 app.post('/register', upload.single('photo'), (req, res) => {
   const { inventory_name, description } = req.body;

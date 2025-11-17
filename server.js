@@ -213,7 +213,7 @@ app.post('/search', (req, res) => {
 
   res.json(responseItem);
 });
-
+ 
 // Обробка невідомих маршрутів/методів
 app.use((req, res) => {
   res.status(405).json({ error: 'Метод не дозволений' });

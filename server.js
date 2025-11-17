@@ -41,6 +41,11 @@ const upload = multer({ storage });
 let inventory = [];
 let nextId = 1;
 
+// HTML-форма реєстрації
+app.get('/RegisterForm.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'RegisterForm.html'));
+});
+
 // POST /register - реєстрація нового пристрою
 app.post('/register', upload.single('photo'), (req, res) => {
   const { inventory_name, description } = req.body;

@@ -76,6 +76,23 @@ app.get('/inventory', (req, res) => {
   res.json(inventoryWithUrls);
 });
 
+// GET /inventory/:id - одна конкретна річ
+app.get('/inventory/:id', (req, res) => {
+  const itemId = parseInt(req.params.id, 10);
+  const item = inventory.find(i => i.id === itemId);
+
+  if (!item) {
+    return res.status(404).json({ error: 'Річ не знайдена' });
+  }
+
+  res.json({
+    id: item.id,
+    inventory_name: item.inventory_name,
+    description: item.description,
+    photo_url: item.photo_filename ? `/inventory/${item.id}/photo` : null
+  });
+});
+
 // Створюємо HTTP сервер з допомогою модуля http
 const server = http.createServer(app);
 

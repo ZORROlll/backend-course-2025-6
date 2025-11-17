@@ -133,6 +133,29 @@ app.get('/inventory/:id/photo', (req, res) => {
   res.sendFile(photoPath);
 });
 
+// DELETE /inventory/:id - видалення речі
+app.delete('/inventory/:id', (req, res) => {
+  const itemId = parseInt(req.params.id, 10);
+  const itemIndex = inventory.findIndex(i => i.id === itemId);
+
+  if (itemIndex === -1) {
+    return res.status(404).json({ error: 'Річ не знайдена' });
+  }
+
+  const item = inventory[itemIndex];
+
+  if (item.photo_filename) {
+    const photoPath = path.join(cachePath, item.photo_filename);
+    if (fs.existsSync(photoPath)) {
+      fs.unlinkSync(photoPath);
+    }
+  }
+
+  inventory.splice(itemIndex, 1);
+
+  res.json({ message: 'Річ успішно видалена' });
+});
+
 // Створюємо HTTP сервер з допомогою модуля http
 const server = http.createServer(app);
 

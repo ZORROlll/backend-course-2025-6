@@ -41,7 +41,7 @@ const upload = multer({ storage });
 let inventory = [];
 let nextId = 1;
 
-// HTML-форма реєстрації
+// HTML-формa реєстрації
 app.get('/RegisterForm.html', (req, res) => {
   res.sendFile(path.join(__dirname, 'RegisterForm.html'));
 });
@@ -143,6 +143,31 @@ app.get('/inventory/:id/photo', (req, res) => {
   res.sendFile(photoPath);
 });
 
+// PUT /inventory/:id/photo - оновлення фото
+app.put('/inventory/:id/photo', upload.single('photo'), (req, res) => {
+  const itemId = parseInt(req.params.id, 10);
+  const item = inventory.find(i => i.id === itemId);
+
+  if (!item) {
+    return res.status(404).json({ error: 'Річ не знайдена' });
+  }
+
+  if (!req.file) {
+    return res.status(400).json({ error: 'Фото обов\'язкове для оновлення' });
+  }
+
+  // Видаляємо старе фото, якщо воно було
+  if (item.photo_filename) {
+    const oldPhotoPath = path.join(cachePath, item.photo_filename);
+    if (fs.existsSync(oldPhotoPath)) {
+      fs.unlinkSync(oldPhotoPath);
+    }
+  }
+ 
+  item.photo_filename = req.file.filename;
+  res.json({ message: 'Фото оновлено успішно' });
+});
+
 // DELETE /inventory/:id - видалення речі
 app.delete('/inventory/:id', (req, res) => {
   const itemId = parseInt(req.params.id, 10);
@@ -164,6 +189,34 @@ app.delete('/inventory/:id', (req, res) => {
   inventory.splice(itemIndex, 1);
 
   res.json({ message: 'Річ успішно видалена' });
+});
+
+// POST /search - пошук за ID
+app.post('/search', (req, res) => {
+  const { id, has_photo } = req.body;
+  const itemId = parseInt(id, 10);
+  const item = inventory.find(i => i.id === itemId);
+
+  if (!item) {
+    return res.status(404).json({ error: 'Річ не знайдена' });
+  }
+
+  const responseItem = {
+    id: item.id,
+    inventory_name: item.inventory_name,
+    description: item.description
+  };
+
+  if (has_photo === 'on' && item.photo_filename) {
+    responseItem.photo_url = `/inventory/${item.id}/photo`;
+  }
+
+  res.json(responseItem);
+});
+
+// Обробка невідомих маршрутів/методів
+app.use((req, res) => {
+  res.status(405).json({ error: 'Метод не дозволений' });
 });
 
 // Створюємо HTTP сервер з допомогою модуля http

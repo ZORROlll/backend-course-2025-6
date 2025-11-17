@@ -64,6 +64,18 @@ app.post('/register', upload.single('photo'), (req, res) => {
   });
 });
 
+// GET /inventory - список усіх речей
+app.get('/inventory', (req, res) => {
+  const inventoryWithUrls = inventory.map(item => ({
+    id: item.id,
+    inventory_name: item.inventory_name,
+    description: item.description,
+    photo_url: item.photo_filename ? `/inventory/${item.id}/photo` : null
+  }));
+
+  res.json(inventoryWithUrls);
+});
+
 // Створюємо HTTP сервер з допомогою модуля http
 const server = http.createServer(app);
 

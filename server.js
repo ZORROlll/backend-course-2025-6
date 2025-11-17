@@ -1,7 +1,9 @@
 const { program } = require('commander');
-const http = require('http');
+const express = require('express');
+const multer = require('multer');
 const fs = require('fs');
 const path = require('path');
+const http = require('http');
 
 program
   .requiredOption('-h, --host <host>', 'Адреса сервера')
@@ -11,38 +13,61 @@ program
 
 const options = program.opts();
 
-// Перевіряємо наявність директорії кешу й створюємо її за потреби
+// Перевіряємо/створюємо директорію кешу
 const cachePath = path.resolve(options.cache);
 if (!fs.existsSync(cachePath)) {
   console.log(`Створюю директорію кешу: ${cachePath}`);
   fs.mkdirSync(cachePath, { recursive: true });
 }
 
-// Створюємо HTTP-сервер
-const server = http.createServer((req, res) => {
-  if (req.url === '/' && req.method === 'GET') {
-    res.writeHead(200, { 'Content-Type': 'text/plain; charset=utf-8' });
-    res.end('Сервіс інвентаризації працює.\n');
-  } else if (req.url === '/health' && req.method === 'GET') {
-    const healthInfo = {
-      status: 'OK',
-      timestamp: new Date().toISOString(),
-    };
-    res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
-    res.end(JSON.stringify(healthInfo));
-  } else {
-    res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
-    res.end('Сторінку не знайдено.\n');
+const app = express();
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// Налаштування multer для завантаження файлів
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, cachePath);
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+    cb(null, 'photo-' + uniqueSuffix + path.extname(file.originalname));
   }
 });
 
-// Обробка помилок сервера
-server.on('error', (error) => {
-  console.error('Помилка сервера:', error.message);
-  process.exit(1);
+const upload = multer({ storage });
+
+// "База даних" у пам'яті
+let inventory = [];
+let nextId = 1;
+
+// POST /register - реєстрація нового пристрою
+app.post('/register', upload.single('photo'), (req, res) => {
+  const { inventory_name, description } = req.body;
+
+  if (!inventory_name) {
+    return res.status(400).json({ error: "Ім'я речі обов'язкове" });
+  }
+
+  const newItem = {
+    id: nextId++,
+    inventory_name,
+    description: description || '',
+    photo_filename: req.file ? req.file.filename : null
+  };
+
+  inventory.push(newItem);
+
+  res.status(201).json({
+    message: 'Пристрій успішно зареєстрований',
+    id: newItem.id
+  });
 });
 
-// Запуск сервера
+// Створюємо HTTP сервер з допомогою модуля http
+const server = http.createServer(app);
+
+// Запускаємо сервер з параметрами --host та --port
 server.listen(options.port, options.host, () => {
   console.log('=== Сервіс інвентаризації ===');
   console.log(`Сервер запущено: http://${options.host}:${options.port}`);
@@ -50,13 +75,4 @@ server.listen(options.port, options.host, () => {
   console.log('=============================');
 });
 
-// Коректне завершення роботи
-process.on('SIGINT', () => {
-  console.log('\nЗавершення роботи сервера...');
-  server.close(() => {
-    console.log('Сервер зупинено.');
-    process.exit(0);
-  });
-});
- 
-module.exports = server;
+module.exports = app;

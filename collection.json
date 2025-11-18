@@ -11,20 +11,42 @@
 			"name": "RegisterForm.html",
 			"request": {
 				"method": "GET",
-				"header": []
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3000/RegisterForm.html",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"RegisterForm.html"
+					]
+				}
 			},
 			"response": []
 		},
 		{
-			"name": "SearchForm",
+			"name": "SearchForm.html",
 			"request": {
 				"method": "GET",
-				"header": []
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3000/SearchForm.html",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"SearchForm.html"
+					]
+				}
 			},
 			"response": []
 		},
 		{
-			"name": "register",
+			"name": "Register device",
 			"request": {
 				"method": "POST",
 				"header": [],
@@ -53,7 +75,7 @@
 			"response": []
 		},
 		{
-			"name": "inventory",
+			"name": "Get all inventory",
 			"request": {
 				"method": "GET",
 				"header": [],
@@ -72,7 +94,7 @@
 			"response": []
 		},
 		{
-			"name": "inventory/1",
+			"name": "Get inventory item",
 			"request": {
 				"method": "GET",
 				"header": []
@@ -80,7 +102,7 @@
 			"response": []
 		},
 		{
-			"name": "inventory/1",
+			"name": "Update inventory item",
 			"request": {
 				"method": "PUT",
 				"header": [
@@ -115,7 +137,7 @@
 			"response": []
 		},
 		{
-			"name": "inventory/1/photo?",
+			"name": "Get item photo",
 			"request": {
 				"method": "PUT",
 				"header": [
@@ -159,7 +181,7 @@
 			"response": []
 		},
 		{
-			"name": "inventory/2",
+			"name": "Delete inventory item",
 			"request": {
 				"method": "DELETE",
 				"header": [
